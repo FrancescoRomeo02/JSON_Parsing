@@ -1,29 +1,32 @@
 %%%% Romeo Francesco 885880
+%%%% Trombella Mattia 
 
 %%%% -*- Mode: Prolog -*-
 % jsonparsing.pl
 %
 % This file contains the predicates to parse a JSON string into a Prolog term.
 %
-% @author Romeo Francesco
+% @author Romeo Francesco, Trombella Mattia
 
 %% jsonparse/2
 %
 % is true if the first item is a JSON string and the second is the Prolog term
+% representing the JSON string
 %
-% @param JSONAtom JSONString
-% @param Object Prolog term
+% @param JSONString, JSON string
+% @param Object, Prolog term representing the JSON string
 
 jsonparse({}, (json_obj([]))) :- 
     !.
 
-% JSON string
+% JSON Atom ( make Atom a String )
 jsonparse(JSONAtom, Object) :-
     atom(JSONAtom),
     atom_string(JSONAtom, JSONString),
     jsonparse(JSONString, Object),
     !.
 
+% JSON String 
 jsonparse(JSONString, json_obj(Object)) :-
     string(JSONString),
     string_chars(JSONString, JSONChars),
@@ -34,20 +37,18 @@ jsonparse(JSONString, json_obj(Object)) :-
     json_obj([JSONObject], Object),
     !.
 
-% JSON Arry
-jsonparse(ArrayAtom, Array) :-
-    atom(ArrayAtom),
-    atom_string(ArrayAtom, ArrayString),
-    jsonparse(ArrayString, Array),
+% JSON Array ( make Array a String )
+jsonparse(JSONArray, ArrayObject) :-
+    atom(JSONArray),
+    atom_string(JSONArray, JSONArrayString),
+    jsonparse(JSONArrayString, ArrayObject),
     !.
 
-jsonparse(JSONArray, json_array(Array)) :-
+jsonparse(JSONArrayString, json_array(Array)) :-
     string(JSONArray),
     term_string(InternJSON, JSONArray),
     json_array([InternJSON], Array),
     !.
-
-
 
 %% json_array/2
 %
@@ -70,8 +71,8 @@ json_array([Element | Elements], [Value | Values]) :-
 % is true if the second item is a list of characters without the characters
 % ' \n \t
 %
-% @param JSONChars JSON string
-% @param CleanJSONChars JSON string without the characters ' \n \t
+% @param JSONChars JSONString
+% @param CleanJSONChars JSONString without the characters ' \n \t
 
 clean_string([], []) :- 
     !.
@@ -87,7 +88,6 @@ clean_string(['\t'|JSONChars], CleanJSONChars) :-
 
 clean_string([JSONChar|JSONChars], [JSONChar|CleanJSONChars]) :-
     clean_string(JSONChars, CleanJSONChars).
-
 
 %% json_obj/2
 %
@@ -136,7 +136,7 @@ storeKV(Key, Value, Key, EvalValue) :-
     valued((Value, EvalValue)),
     !.
 
-%% valued/1
+%% valued/2
 %
 % is true if the first elemt is a String, Number, Array or Object and the second
 % is the same
@@ -164,3 +164,4 @@ valued((Value, EvalValue)) :-
 
 %%%% to-do
 % - add support for array 
+% - jsonacces 
