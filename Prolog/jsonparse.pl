@@ -1,6 +1,5 @@
 %%%% Romeo Francesco 885880
-%%%% Trombella Mattia 
-
+%%%% Trombella Mattia 885881
 %%%% -*- Mode: Prolog -*-
 % jsonparsing.pl
 %
@@ -12,9 +11,6 @@
 %
 % is true if the first item is a JSON string and the second is the Prolog term
 % representing the JSON string
-%
-% @param JSONString, JSON string
-% @param Object, Prolog term representing the JSON string
 
 jsonparse({}, (json_obj([]))) :- 
     !.
@@ -29,9 +25,7 @@ jsonparse(JSONAtom, Object) :-
 % JSON String 
 jsonparse(JSONString, json_obj(Object)) :-
     string(JSONString),
-    string_chars(JSONString, JSONChars),
-    clean_string(JSONChars, CleanJSONChars),
-    string_chars(CleanJSONString, CleanJSONChars),
+    clean_string(JSONString, CleanJSONString),
     term_string(InternJSON, CleanJSONString),
     InternJSON =.. [{}, JSONObject],
     json_obj([JSONObject], Object),
@@ -45,8 +39,8 @@ jsonparse(JSONArray, ArrayObject) :-
     !.
 
 jsonparse(JSONArrayString, json_array(Array)) :-
-    string(JSONArray),
-    term_string(InternJSON, JSONArray),
+    string(JSONArrayString),
+    term_string(InternJSON, JSONArrayString),
     json_array([InternJSON], Array),
     !.
 
@@ -54,9 +48,6 @@ jsonparse(JSONArrayString, json_array(Array)) :-
 %
 % is true if the first element is a JSON array and 
 % the second is a list of the elements
-%
-% @param list of JSON arrays
-% @param list of elements
 
 json_array([], []) :- 
     !.
@@ -68,26 +59,41 @@ json_array([Element | Elements], [Value | Values]) :-
 
 %% clean_string/2
 %
-% is true if the second item is a list of characters without the characters
+% is true if the second item is the first item without the characters
 % ' \n \t
-%
-% @param JSONChars JSONString
-% @param CleanJSONChars JSONString without the characters ' \n \t
 
 clean_string([], []) :- 
     !.
 
-clean_string(['\''|JSONChars], CleanJSONChars) :-
-    clean_string(JSONChars, CleanJSONChars).
+clean_string(JSONString, JSONCleanString) :-
+    string_to_list_of_characters(JSONString, Characters),
+    exclude(toBeRemoved, Characters, CleanCharacters),
+    atomics_to_string(CleanCharacters, JSONCleanString).
 
-clean_string(['\n'|JSONChars], CleanJSONChars) :-
-    clean_string(JSONChars, CleanJSONChars).
+%% string_to_list_of_characters/2
+%
+% is true if the second item is the first item converted 
+% into a list of characters
 
-clean_string(['\t'|JSONChars], CleanJSONChars) :-
-    clean_string(JSONChars, CleanJSONChars).
+string_to_list_of_characters(String, Characters) :-
+    name(String, Xs),
+    maplist( number_to_character, Xs, Characters ).
 
-clean_string([JSONChar|JSONChars], [JSONChar|CleanJSONChars]) :-
-    clean_string(JSONChars, CleanJSONChars).
+%% number_to_character/2
+%
+% is true if the second item is the first item converted
+
+number_to_character(Number, Character) :- 
+    name(Character, [Number]).
+
+    
+% characters to remove from the JSON string
+
+toBeRemoved('\'').
+toBeRemoved('\n').
+toBeRemoved('\t').
+toBeRemoved('\r').
+
 
 %% json_obj/2
 %
@@ -128,7 +134,8 @@ json_elements(Member, (Key, Value)) :-
 % is true if the first and the third elements are a key and the second
 % and the fourth are the value
 % 
-% @param Key String, Value and EvalValue can be a string, number, array or object
+% @param Key String, Value and EvalValue can be a string, 
+% number, array or object
 % @param evaluate kay and value
 
 storeKV(Key, Value, Key, EvalValue) :-
@@ -165,3 +172,4 @@ valued((Value, EvalValue)) :-
 %%%% to-do
 % - add support for array 
 % - jsonacces 
+% - read/write file 
