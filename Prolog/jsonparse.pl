@@ -23,17 +23,17 @@ jsonparse(JSONAtom, Object) :-
     !.
 
 % JSON String 
-jsonparse(JSONString, json_obj(Object)) :-
+jsonparse(JSONString, jsonobj(Object)) :-
     string(JSONString),
-    clean_string(JSONString, CleanJSONString),
+    cleanstring(JSONString, CleanJSONString),
     term_string(InternJSON, CleanJSONString),
     InternJSON =.. [{}, JSONObject],
-    json_obj([JSONObject], Object),
+    jsonobj([JSONObject], Object),
     !.
 
-jsonparse(JSON, json_obj(ParsedObject)) :-
+jsonparse(JSON, jsonobj(ParsedObject)) :-
     JSON =.. [{}, Object],
-    json_obj([Object], ParsedObject),
+    jsonobj([Object], ParsedObject),
     !.
 
 % JSON Array 
@@ -43,56 +43,56 @@ jsonparse(JSONAtomArray, ArrayObject) :-
     jsonparse(JSONArrayString, ArrayObject),
     !.
 
-jsonparse(JSONArrayString, json_array(Array)) :-
+jsonparse(JSONArrayString, jsonarray(Array)) :-
     string(JSONArrayString),
     term_string(InternJSON, JSONArrayString),
-    json_array(InternJSON, Array),
+    jsonarray(InternJSON, Array),
     !.
 
-jsonparse(Array, json_array(ParsedArray)) :-
-    json_array(Array, ParsedArray),
+jsonparse(Array, jsonarray(ParsedArray)) :-
+    jsonarray(Array, ParsedArray),
     !.
 
-%% json_array/2
+%% jsonarray/2
 %
 % is true if the first element is a JSON array and 
 % the second is a list of the elements
 
-json_array([], []) :- 
+jsonarray([], []) :- 
     !.
 
-json_array([Element | Elements], [Value | Values]) :-
-    valued((Value, Element)),
-    json_array(Elements, Values),
+jsonarray([Element | Elements], [Value | Values]) :-
+    tobeevaluated((Value, Element)),
+    jsonarray(Elements, Values),
     !.
 
-%% clean_string/2
+%% cleanstring/2
 %
 % is true if the second item is the first item without the characters
 % ' \n \t
 
-clean_string([], []) :- 
+cleanstring([], []) :- 
     !.
 
-clean_string(JSONString, JSONCleanString) :-
-    string_to_list_of_characters(JSONString, Characters),
+cleanstring(JSONString, JSONCleanString) :-
+    stringfromcharacters(JSONString, Characters),
     exclude(toBeRemoved, Characters, CleanCharacters),
     atomics_to_string(CleanCharacters, JSONCleanString).
 
-%% string_to_list_of_characters/2
+%% stringfromcharacters/2
 %
 % is true if the second item is the first item converted 
 % into a list of characters
 
-string_to_list_of_characters(String, Characters) :-
+stringfromcharacters(String, Characters) :-
     name(String, Xs),
-    maplist( number_to_character, Xs, Characters ).
+    maplist( numbertocharacter, Xs, Characters ).
 
-%% number_to_character/2
+%% numbertocharacter/2
 %
 % is true if the second item is the first item converted
 
-number_to_character(Number, Character) :- 
+numbertocharacter(Number, Character) :- 
     name(Character, [Number]).
 
     
@@ -104,34 +104,28 @@ toBeRemoved('\t').
 toBeRemoved('\r').
 
 
-%% json_obj/2
+%% jsonobj/2
 %
 % is true if the first element is a JSON object and the second is a list of
 % pairs (key : value)
-%
-% @param list of JSON objects
-% @param list of pairs (key : value)
 
-json_obj([], []) :- 
+jsonobj([], []) :- 
     !.
 
-json_obj([Elements], [Pairs]) :-
+jsonobj([Elements], [Pairs]) :-
     json_elements(Elements, Pairs),
     !.
 
-json_obj([Object], [Pair | Pairs]) :-
+jsonobj([Object], [Pair | Pairs]) :-
     Object =.. [',', Element | T],
     json_elements(Element, Pair),
-    json_obj(T, Pairs),
+    jsonobj(T, Pairs),
     !.
 
 %% json_elements/2
 %
 % is true if the first element is a list of the form [key : value]
 % composed by the elements of the second element
-%
-% @param list
-% @param pair (key : value)
 
 json_elements(Member, (Key, Value)) :-
     Member =.. [':', EvalKey, EvalValue],
@@ -142,43 +136,109 @@ json_elements(Member, (Key, Value)) :-
 %
 % is true if the first and the third elements are a key and the second
 % and the fourth are the value
-% 
-% @param Key String, Value and EvalValue can be a string, 
-% number, array or object
-% @param evaluate kay and value
 
 storeKV(Key, Value, Key, EvalValue) :-
     string(Key),
-    valued((Value, EvalValue)),
+    tobeevaluated((Value, EvalValue)),
     !.
 
-%% valued/2
+%%tobeevaluated/2
 %
-% is true if the first elemt is a String, Number, Array or Object and the second
-% is the same
-% 
-% @param Value String, number or array, EvalValure object
-% @param evaluate value or recursively call jsonparse to evaluate the value
+% is true if the first elemt is a String, Number, Array or Object 
+% and the second is the same
 
-valued(([], [])) :-
+tobeevaluated(([], [])) :-
     !.
 
-valued((Value, Value)) :-
+tobeevaluated((Value, Value)) :-
     string(Value),
     !.
 
-valued((Value, Value)) :-
+tobeevaluated((Value, Value)) :-
     number(Value), 
     !.
 
-valued((Value, EvalValue)) :-
+tobeevaluated((Value, EvalValue)) :-
     jsonparse(Value, EvalValue),
     !.
 
+%%%% jsonaccess/3 
+%
+% is true if the third item is optnable following the chain of fields present in the second item 
+% starting from the first item 
+
+% Fields is a list of fields
+
+jsonaccess(Jsonobj, [], Jsonobj) :- 
+    !.
+
+% Fields is a list of fields and Jsonobj is an object
+
+jsonaccess(jsonobj(Jsonobj), [Field | Fields], Value) :-
+    jsonaccess(jsonobj(Jsonobj), Field , SemiValue),
+    jsonaccess(SemiValue, Fields, Value),
+    !.
+
+% Field is a list of fileds and Jsonobj is an array
+
+jsonaccess(jsonarray(Jsonarray), [Field | Fields], Value) :-
+    jsonaccess(jsonarray(Jsonarray), Field , Semivalue),
+    jsonaccess(Semivalue, Fields, Value),
+    !.
+
+% Fields is a SWI Prolog String
+
+jsonaccess(jsonobj(Jsonobj), Field, Value) :-
+    string(Field),
+    accessvalue(Jsonobj, Field, Value),
+    !.
+
+% Fileds is a number
+
+jsonaccess(jsonarray(Jsonarray), Field, Value) :-
+    number(Field),
+    accessvalueindex(Jsonarray, Field, Value),
+    !.
+
+%%%% accessvalue/3
+%
+% is true if the third element matches the value of the first 
+% using the second as the key
+
+accessvalue(_, [], _) :-
+    fail, 
+    !.
+
+accessvalue([(Key, Value) | _], Requiredkey, Returnvalue) :-
+    Requiredkey = Key,
+    Returnvalue = Value,
+    !.
+
+accessvalue([_ | T], Requiredkey, Returnvalue) :-
+    accessvalue(T, Requiredkey, Returnvalue),
+    !.
+
+%%%% accessvalueindex/3
+%
+% is true if the third item is the value of 
+% the second item position in the first item
+
+accessvalueindex([], _, _) :-
+    fail, 
+    !.
+
+accessvalueindex([Value | _], 0, Value) :-
+    !.
+
+accessvalueindex([_ | T], Index, Value) :-
+    Index > 0,
+    NewIndex is Index - 1,
+    accessvalueindex(T, NewIndex, Value),
+    !.
 
 %%%% end of file -- jsonparsing.pl
 
 %%%% to-do
-% - add support for array 
-% - jsonacces 
 % - read/write file 
+% - correggere commenti
+% - chiedere chiarimenti nome predicati
