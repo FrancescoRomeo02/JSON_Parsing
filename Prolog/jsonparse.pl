@@ -12,7 +12,7 @@
 % is true if the first item is a JSON string and the second is the Prolog term
 % representing the JSON string
 
-jsonparse({}, ([])) :- 
+jsonparse({}, (jsonobj([]))) :- 
     !.
 
 % JSON Atom ( make Atom a String )
@@ -25,8 +25,8 @@ jsonparse(JSONAtom, Object) :-
 % JSON String 
 jsonparse(JSONString, jsonobj(Object)) :-
     string(JSONString),
-    cleanstring(JSONString, CleanJSONString),
-    term_string(InternJSON, CleanJSONString),
+    cleanString(JSONString, CleanJSONString),
+    catch(term_string(InternJSON, CleanJSONString),_ , fail),
     InternJSON =.. [{}, JSONObject],
     jsonobj([JSONObject], Object),
     !.
@@ -45,7 +45,7 @@ jsonparse(JSONAtomArray, ArrayObject) :-
 
 jsonparse(JSONArrayString, jsonarray(Array)) :-
     string(JSONArrayString),
-    term_string(InternJSON, JSONArrayString),
+    catch(term_string(InternJSON, JSONArrayString), _, fail),
     jsonarray(InternJSON, Array),
     !.
 
@@ -66,15 +66,15 @@ jsonarray([Element | Elements], [Value | Values]) :-
     jsonarray(Elements, Values),
     !.
 
-%% cleanstring/2
+%% cleanString/2
 %
 % is true if the second item is the first item without the characters
 % ' \n \t
 
-cleanstring([], []) :- 
+cleanString([], []) :- 
     !.
 
-cleanstring(JSONString, JSONCleanString) :-
+cleanString(JSONString, JSONCleanString) :-
     stringfromcharacters(JSONString, Characters),
     exclude(toBeRemoved, Characters, CleanCharacters),
     atomics_to_string(CleanCharacters, JSONCleanString).
@@ -241,4 +241,4 @@ accessvalueindex([_ | T], Index, Value) :-
 %%%% to-do
 % - read/write file 
 % - correggere commenti
-% - chiedere chiarimenti nome predicati
+% - correggere nomi predicati
