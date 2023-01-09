@@ -12,7 +12,7 @@
 % is true if the first item is a JSON string and the second is the Prolog term
 % representing the JSON string
 
-jsonparse({}, (json_obj([]))) :- 
+jsonparse({}, ([])) :- 
     !.
 
 % JSON Atom ( make Atom a String )
@@ -31,17 +31,26 @@ jsonparse(JSONString, json_obj(Object)) :-
     json_obj([JSONObject], Object),
     !.
 
-% JSON Array ( make Array a String )
-jsonparse(JSONArray, ArrayObject) :-
-    atom(JSONArray),
-    atom_string(JSONArray, JSONArrayString),
+jsonparse(JSON, json_obj(ParsedObject)) :-
+    JSON =.. [{}, Object],
+    json_obj([Object], ParsedObject),
+    !.
+
+% JSON Array 
+jsonparse(JSONAtomArray, ArrayObject) :-
+    atom(JSONAtomArray),
+    atom_string(JSONAtomArray, JSONArrayString),
     jsonparse(JSONArrayString, ArrayObject),
     !.
 
 jsonparse(JSONArrayString, json_array(Array)) :-
     string(JSONArrayString),
     term_string(InternJSON, JSONArrayString),
-    json_array([InternJSON], Array),
+    json_array(InternJSON, Array),
+    !.
+
+jsonparse(Array, json_array(ParsedArray)) :-
+    json_array(Array, ParsedArray),
     !.
 
 %% json_array/2
@@ -53,7 +62,7 @@ json_array([], []) :-
     !.
 
 json_array([Element | Elements], [Value | Values]) :-
-    valued(Value, Element),
+    valued((Value, Element)),
     json_array(Elements, Values),
     !.
 
