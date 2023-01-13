@@ -27,12 +27,12 @@ jsonparse(JSONString, jsonobj(Object)) :-
     string(JSONString),
     cleanString(JSONString, CleanJSONString),
     catch(term_string(InternJSON, CleanJSONString),_ , fail),
-    InternJSON =.. [{}, JSONObject],
+    InternJSON = {JSONObject},
     jsonobj([JSONObject], Object),
     !.
 
 jsonparse(JSON, jsonobj(ParsedObject)) :-
-    JSON =.. [{}, Object],
+    JSON = {Object},
     jsonobj([Object], ParsedObject),
     !.
 
