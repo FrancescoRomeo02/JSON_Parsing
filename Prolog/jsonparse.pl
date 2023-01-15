@@ -8,7 +8,6 @@
 %
 % @author Romeo Francesco, Trombella Mattia
 
-
 %%%% jsonparse/2
 %
 % is true if the first item is a JSON string and the second is the Prolog term
@@ -117,7 +116,6 @@ stringFromChars(String, Characters) :-
 codeToCharacter(Number, Character) :-
     name(Character, [Number]),
     !.
-
     
 % characters to removed from the JSON string
 toBeRemoved('\'').
