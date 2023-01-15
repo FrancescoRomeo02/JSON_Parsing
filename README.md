@@ -1,3 +1,4 @@
+...prima o poi lo sistemo...
 Linguaggi di Programmazione Progetto Prolog e Common Lisp 202301 (E1P)
 JSON Parsing
 Marco Antoniotti, Gabriella Pasi e Fabio Sartori
@@ -147,33 +148,3 @@ La vostra libreria dovrà anche fornire due funzioni per la lettura da file e la
 LafunzionejsonreadapreilfilefilenameritornaunoggettoJSON(ogeneraunerrore). Se filename non la funzione genera un errore. Il suggerimento è di leggere l’intero file in una stringa e poi di richiamare jsonparse.
 Lafunzionejsondumpscrivel’oggettoJSONsulfilefilenameinsintassiJSON. Sefilename non esiste, viene creato e se esiste viene sovrascritto. Naturalmente ci si aspetta che
 CL-PROMPT> (jsonread (jsondump ’(jsonobj #| stuff |#) ”foo.json”)) (JSONOBJ #| stuff |#)
-Da consegnare
-LEGGERE MOLTO ATTENTATMENTE LE ISTRUZIONI!!!
-Dovrete consegnare un file .zip (i files .7z, .rar o .tar etc, non sono accettabili!!!) dal nome
-MATRICOLA*Cognome_Nome_LP_E1P_JSON_2023.zip
-Nome e Cognome devono avere solo la prima lettera maiuscola, Matricola deve avere lo zero iniziale se presente. Cognomi e nomi multipli vanno inframmezzati con il carattere ‘*’; ad esempio: Pravettoni_Brambilla_Gian_Giac_Pier_Carluca.
-5
-
-Questo file compresso deve contenere una sola directory con lo stesso nome. Al suo interno ci deve essere una sottodirectory chiamata ‘Prolog’ e una sottodirectory chiamata ‘Lisp’. Al loro interno queste directory devono contenere i files caricabili e interpretabili, più tutte le istruzioni che riterrete necessarie. Il file Prolog si deve chiamare ‘jsonparse.pl’, e il file Lisp si deve chiamare ‘jsonparse.lisp’. Le due sottodirectory devono contenere un file chiamato README.txt. In altre parole, questa è la struttura della directory (folder, cartella) una volta spacchettata.
-$ cd cartella_JSON
-$ unzip MATRICOLA_Cognome_Nome_LP_E1P_JSON_2023.zip
-...
-$ ls
-MATRICOLA_Cognome_Nome_LP_E1P_JSON_2023
-Il contenuto dovrà essere il seguente. In Windows i comandi sono simili...
-MATRICOLA_Cognome_Nome_LP_E1P_JSON_2023
-Prolog
-jsonparse.pl
-README.txt
-Lisp
-jsonparse.lisp
-README.txt
-Potete aggiungere altri files, ma il loro caricamento dovrà essere effettuato automaticamente al momento del caricamento (“loading”) dei files sopracitati.
-Come sempre, valgono le direttive standard (reperibili sulla piattaforma Moodle) circa la formazione dei gruppi.
-Ogni file deve contenere all’inizio un commento con il nome e matricola di ogni membro del gruppo. Ogni persona deve consegnare un elaborato, anche quando ha lavorato in gruppo.
-Il termine ultimo della consegna sulla piattaforma Moodle è il 15 gennaio 2023, ore 23:59 GMT+1
-Valutazione
-In aggiunta a quanto detto nella sezione “Indicazioni e requisiti” seguono ulteriori informazioni sulla procedura di valutazione.
-Abbiamo a disposizione una serie di esempi standard che saranno usati per una valutazione oggettiva dei programmi. Se i files sorgente non potranno essere letti/caricati nell’ambiente Prolog (nb.: SWI-Prolog, ma non necessariamente in ambiente Windows, Linux, Mac), o nelll’ambiente Common Lisp (Lispworks, ma non necessariamente in ambiente Windows, Linux, Mac), il progetto non sarà ritenuto sufficiente.
-Il mancato rispetto dei nomi indicati per funzioni e predicati, o anche delle strutture proposte e della semantica esemplificata nel testo del progetto, oltre a comportare ritardi e possibili fraintendimenti nella correzione, può comportare una diminuzione nel voto ottenuto.
-6
